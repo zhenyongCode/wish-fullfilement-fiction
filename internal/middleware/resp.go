@@ -67,7 +67,7 @@ func HandlerResponse(r *ghttp.Request) {
 		RequestId: gctx.CtxId(r.Context()),
 	}
 	// 如果想将 g.Map 中的字段直接提取到顶层 JSON 中而不是放在 Data 字段下，可以这样修改：
-	if res != nil {
+	if res != nil && err == nil {
 		// 检查 res 类型
 		// 使用
 		if data, ok := extractData(res); ok {
@@ -79,6 +79,7 @@ func HandlerResponse(r *ghttp.Request) {
 	r.Response.WriteJson(response)
 }
 
+// 实现一个接口来提取数据，如果 res 实现了这个接口，就调用 GetData 方法获取数据，否则直接使用 res 作为 Data 字段的值
 type dataHolder interface{ GetData() interface{} }
 
 // 通用取值函数

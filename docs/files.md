@@ -10,6 +10,7 @@ This document maintains the project's file structure as single source of truth.
   Makefile                      – Build targets entry
   README.MD                     – Project readme
   CLAUDE.md                     – AI coding assistant guidance
+  bifrost.yaml                  – Bifrost LLM gateway config
 
 /api                            – API definitions (request/response)
   /hello                        – Hello module API
@@ -20,6 +21,8 @@ This document maintains the project's file structure as single source of truth.
 /internal                       – Private application code
   /cmd                          – CLI commands
     cmd.go                      – Main command and router setup
+  /config                       – Configuration (using gcfg)
+    config.go                   – Config struct, Load, Get helpers
   /consts                       – Global constants
     consts.go                   – Constant definitions
   /controller                   – HTTP handlers
@@ -27,18 +30,24 @@ This document maintains the project's file structure as single source of truth.
       hello.go                  – Package placeholder
       hello_new.go              – Controller constructor (auto-generated)
       hello_v1_hello.go         – Hello endpoint implementation
-  /dao                          – Data access objects
+  /llm                          – LLM client abstraction layer
+    client.go                   – ChatRequest/Response types, Client interface
+    /bifrost                    – Bifrost LLM gateway implementation
+      client.go                 – Bifrost client with multi-provider support
+      config.go                 – Bifrost config types and LoadConfig
   /logic                        – Business logic implementations
-    example.go                  – Example service functions (echo, hello, add)
-  /model                        – Data models
+    example.go                  – Service functions (echo, hello, add, chat)
+  /middleware                   – HTTP middleware
+    resp.go                     – HandlerResponse middleware
   /service                      – Business logic interfaces
     api.go                      – Service definitions
+    chat.go                     – ChatService implementation
   /servicefunc                  – Service function registry and executor
     servicefunc.go              – RegisterFunc, RegisterMethod, ServiceFuncExe
 
 /manifest                       – Configuration and deployment
   /config                       – Application config
-    config.yaml                 – Server, logger, database config
+    config.yaml                 – Server, logger, database, LLM path config
 
 /utility                        – Utility functions
   .gitkeep                      – Directory placeholder
