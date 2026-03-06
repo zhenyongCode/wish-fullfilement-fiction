@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"wish-fullfilement-fiction/internal/agent"
 
 	"github.com/gogf/gf/v2/frame/g"
 	"wish-fullfilement-fiction/internal/llm"
@@ -40,20 +41,25 @@ func NewChatService(ctx context.Context) (*ChatService, error) {
 
 // Chat 执行聊天
 func (s *ChatService) Chat(ctx context.Context, req *ChatRequest) (*ChatResponse, error) {
-	chatReq := llm.ChatRequest{
-		Messages: req.Messages,
-		Tools:    req.Tools,
-	}
+	testA := agent.NewAgent("test_agent", s.client) // TODO: agent name and maxRounds
 
-	resp, err := s.client.ChatCompletion(ctx, chatReq)
+	res, err := testA.Run(ctx, "天气怎么样") // TODO: task
 	if err != nil {
 		return nil, err
 	}
 
+	//chatReq := llm.ChatRequest{
+	//	Messages: req.Messages,
+	//	Tools:    req.Tools,
+	//}
+	//
+	//resp, err := s.client.ChatCompletion(ctx, chatReq)
+	//if err != nil {
+	//	return nil, err
+	//}
+
 	return &ChatResponse{
-		StopReason: resp.StopReason,
-		Content:    resp.Content,
-		ToolCalls:  resp.ToolCalls,
+		Content: res,
 	}, nil
 }
 

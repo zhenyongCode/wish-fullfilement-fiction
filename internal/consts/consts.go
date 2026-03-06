@@ -28,7 +28,7 @@ const (
 	DefaultCommandTimeout = 30 * time.Second
 	DefaultLLMTimeout     = 30 * time.Second
 	DefaultMaxRounds      = 30
-	DefaultToolTimeout    = 20 * time.Second
+	DefaultToolTimeout    = 120 * time.Second
 )
 
 const (
