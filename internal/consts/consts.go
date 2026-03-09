@@ -69,8 +69,10 @@ const (
 
 const (
 	BuildInAgentTranslation = "translation"
+	BuildInAgentCodding     = "coding"
 )
 
 var BuildInAgents = []string{
 	BuildInAgentTranslation,
+	BuildInAgentCodding,
 }

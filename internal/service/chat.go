@@ -3,11 +3,9 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/gogf/gf/v2/frame/g"
 	"strings"
 	"wish-fullfilement-fiction/internal/agent"
-	"wish-fullfilement-fiction/internal/consts"
-
-	"github.com/gogf/gf/v2/frame/g"
 	"wish-fullfilement-fiction/internal/llm"
 	"wish-fullfilement-fiction/internal/llm/bifrost"
 )
@@ -40,11 +38,16 @@ func NewChatService(ctx context.Context) (*ChatService, error) {
 	return &ChatService{client: client}, nil
 }
 
-// Chat 执行聊天
-func (s *ChatService) Chat(ctx context.Context, task string) (*ChatResponse, error) {
-	testA := agent.GetAgent(consts.BuildInAgentTranslation) // TODO: agent name and maxRounds
+type chatReq struct {
+	Task      string `json:"task"`
+	AgentName string `json:"agent_name"`
+}
 
-	res, err := testA.Run(ctx, task) // TODO: task
+// Chat 执行聊天
+func (s *ChatService) Chat(ctx context.Context, req *chatReq) (*ChatResponse, error) {
+	testA := agent.GetAgent(req.AgentName) // TODO: agent name and maxRounds
+
+	res, err := testA.Run(ctx, req.Task) // TODO: task
 	if err != nil {
 		return nil, err
 	}
@@ -63,10 +66,15 @@ func (s *ChatService) Exec(ctx context.Context, params g.Map) (g.Map, error) {
 	if len(t) == 0 {
 		return nil, fmt.Errorf("empty task")
 	}
+	agentName := params["agent"].(string)
+	agentName = strings.TrimSpace(agentName)
 
 	// Call Chat
 
-	resp, err := s.Chat(ctx, t)
+	resp, err := s.Chat(ctx, &chatReq{
+		Task:      t,
+		AgentName: agentName,
+	})
 	if err != nil {
 		return nil, err
 	}
