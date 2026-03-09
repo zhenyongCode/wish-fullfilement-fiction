@@ -2,9 +2,10 @@ package service
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
+	"strings"
 	"wish-fullfilement-fiction/internal/agent"
+	"wish-fullfilement-fiction/internal/consts"
 
 	"github.com/gogf/gf/v2/frame/g"
 	"wish-fullfilement-fiction/internal/llm"
@@ -40,23 +41,13 @@ func NewChatService(ctx context.Context) (*ChatService, error) {
 }
 
 // Chat 执行聊天
-func (s *ChatService) Chat(ctx context.Context, req *ChatRequest) (*ChatResponse, error) {
-	testA := agent.NewAgent("test_agent", s.client) // TODO: agent name and maxRounds
+func (s *ChatService) Chat(ctx context.Context, task string) (*ChatResponse, error) {
+	testA := agent.GetAgent(consts.BuildInAgentTranslation) // TODO: agent name and maxRounds
 
-	res, err := testA.Run(ctx, "天气怎么样") // TODO: task
+	res, err := testA.Run(ctx, task) // TODO: task
 	if err != nil {
 		return nil, err
 	}
-
-	//chatReq := llm.ChatRequest{
-	//	Messages: req.Messages,
-	//	Tools:    req.Tools,
-	//}
-	//
-	//resp, err := s.client.ChatCompletion(ctx, chatReq)
-	//if err != nil {
-	//	return nil, err
-	//}
 
 	return &ChatResponse{
 		Content: res,
@@ -67,39 +58,15 @@ func (s *ChatService) Chat(ctx context.Context, req *ChatRequest) (*ChatResponse
 // 符合 servicefunc.ServiceFunc 签名: func(ctx context.Context, params g.Map) (g.Map, error)
 func (s *ChatService) Exec(ctx context.Context, params g.Map) (g.Map, error) {
 	// Parse messages
-	messages, err := parseMessages(params)
-	if err != nil {
-		return nil, err
-	}
-
-	// Parse tools (optional)
-	var tools []llm.ToolSpec
-	if t, ok := params["tools"]; ok && t != nil {
-		tools, err = parseTools(t)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	// Get timeout (optional)
-	var timeout int64
-	if t, ok := params["timeout"]; ok {
-		switch v := t.(type) {
-		case int:
-			timeout = int64(v)
-		case int64:
-			timeout = v
-		case float64:
-			timeout = int64(v)
-		}
+	t := params["task"].(string)
+	t = strings.TrimSpace(t)
+	if len(t) == 0 {
+		return nil, fmt.Errorf("empty task")
 	}
 
 	// Call Chat
-	resp, err := s.Chat(ctx, &ChatRequest{
-		Messages: messages,
-		Tools:    tools,
-		Timeout:  timeout,
-	})
+
+	resp, err := s.Chat(ctx, t)
 	if err != nil {
 		return nil, err
 	}
@@ -114,39 +81,4 @@ func (s *ChatService) Exec(ctx context.Context, params g.Map) (g.Map, error) {
 	}
 
 	return result, nil
-}
-
-// parseMessages parses messages from params
-func parseMessages(params g.Map) ([]llm.ChatMessage, error) {
-	msgsRaw, ok := params["messages"]
-	if !ok {
-		return nil, fmt.Errorf("messages parameter required")
-	}
-
-	jsonBytes, err := json.Marshal(msgsRaw)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse messages: %v", err)
-	}
-
-	var messages []llm.ChatMessage
-	if err := json.Unmarshal(jsonBytes, &messages); err != nil {
-		return nil, fmt.Errorf("failed to parse messages: %v", err)
-	}
-
-	return messages, nil
-}
-
-// parseTools parses tools from params
-func parseTools(toolsRaw interface{}) ([]llm.ToolSpec, error) {
-	jsonBytes, err := json.Marshal(toolsRaw)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse tools: %v", err)
-	}
-
-	var tools []llm.ToolSpec
-	if err := json.Unmarshal(jsonBytes, &tools); err != nil {
-		return nil, fmt.Errorf("failed to parse tools: %v", err)
-	}
-
-	return tools, nil
 }

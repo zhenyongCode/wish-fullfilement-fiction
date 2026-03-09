@@ -35,6 +35,15 @@ This document maintains the project's file structure as single source of truth.
     /bifrost                    – Bifrost LLM gateway implementation
       client.go                 – Bifrost client with multi-provider support
       config.go                 – Bifrost config types and LoadConfig
+    /prompt                     – Prompt management system
+      prompt.go                 – Prompt structures (待实现)
+    /skills                     – Skills management system
+      skills.go                 – Skill structures (待实现)
+    /tools                      – Tool execution system
+      tools.go                  – Tool interface definition
+      hub.go                    – Tool registration and execution center
+      read_file_tool.go         – File read tool implementation
+      bash_tool.go              – Bash command tool implementation
   /logic                        – Business logic implementations
     example.go                  – Service functions (echo, hello, add, chat)
   /middleware                   – HTTP middleware
@@ -61,5 +70,6 @@ This document maintains the project's file structure as single source of truth.
 
 /docs                           – Documentation
   progress.md                   – Project history (append-only)
-  files.md                      – This file (file structure tree)
+  files.md                      – 文件结构树
+  prompt-skills-design.md       – Prompt & Skills 加载实现方案
 ```

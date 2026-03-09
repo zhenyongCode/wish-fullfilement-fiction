@@ -24,6 +24,7 @@ type Tool interface {
 
 type Registry interface {
 	Register(tool Tool) error
+	RegisterByName(name string) error
 	Get(name string) (Tool, bool)
 	List() []Tool
 }

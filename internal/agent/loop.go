@@ -29,7 +29,6 @@ type Loop struct {
 	llm       llm.Client
 	maxRounds int
 	toolHub   *tools.Hub // 工具中心，管理可用的工具实例
-	sessionId string     // 会话ID，用于跟踪同一轮对话中的多个交互
 	//skillHub  *SkillHub
 }
 
@@ -41,14 +40,8 @@ func NewLoop(llm llm.Client, maxRounds int) *Loop {
 	}
 }
 
-func (l *Loop) Execute(ctx context.Context, task string) (string, error) {
-	// TODO：实现 Loop 的运行逻辑，包括与 LLM 交互、调用工具等
-	if strings.TrimSpace(task) == "" {
-		return "", ErrEmptyTask
-	}
+func (l *Loop) Execute(ctx context.Context, messages []llm.ChatMessage) (string, error) {
 	loopStart := time.Now()
-	messages := make([]llm.ChatMessage, 0, 2)
-
 	for round := 1; round <= l.maxRounds; round++ {
 		roundStart := time.Now()
 		resp, err := l.llm.ChatCompletion(ctx, llm.ChatRequest{

@@ -51,6 +51,7 @@ const (
 const (
 	StopReasonToolUse = "tool_use"
 	ToolNameBash      = "bash"
+	ToolNameReadFile  = "read_file"
 )
 
 const (
@@ -65,3 +66,11 @@ const (
 	ContextTaskIDKey    = "task_id"
 	ContextAgentNameKey = "agent_name"
 )
+
+const (
+	BuildInAgentTranslation = "translation"
+)
+
+var BuildInAgents = []string{
+	BuildInAgentTranslation,
+}

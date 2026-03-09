@@ -36,12 +36,16 @@ func NewHub(defaultTimeout time.Duration) *Hub {
 		defaultTimeout = consts.DefaultToolTimeout
 	}
 	workspace := consts.DefaultWorkspace
-	return &Hub{
+	hub := &Hub{
 		registry:       map[string]Tool{},
 		workspace:      strings.TrimSpace(workspace),
 		defaultTimeout: defaultTimeout,
 		runner:         defaultCommandRunner,
 	}
+	// 注册默认工具
+	hub.RegisterByName(consts.ToolNameReadFile)
+	hub.RegisterByName(consts.ToolNameBash)
+	return hub
 }
 func (h *Hub) GetTools() []llm.ToolSpec {
 	return h.Tools
@@ -93,6 +97,31 @@ func (h *Hub) Register(tool Tool) error {
 		JSONSchema:  tool.Schema(),
 	})
 	return nil
+}
+
+// RegisterByName registers a predefined tool by its name.
+// Supported tool names: "bash", "read_file".
+// Tool dependencies are obtained from the Hub (e.g., workspace, runner).
+func (h *Hub) RegisterByName(name string) error {
+	name = strings.TrimSpace(name)
+	if name == "" {
+		return ErrInvalidToolName
+	}
+
+	var tool Tool
+	switch name {
+	case consts.ToolNameBash:
+		if h.runner == nil {
+			return fmt.Errorf("bash tool requires command runner, call SetCommandRunner first")
+		}
+		tool = newBashTool(h.runner)
+	case consts.ToolNameReadFile:
+		tool = newReadFileTool(h.workspace)
+	default:
+		return fmt.Errorf("%w: %s", ErrToolNotFound, name)
+	}
+
+	return h.Register(tool)
 }
 
 func (h *Hub) Get(name string) (Tool, bool) {

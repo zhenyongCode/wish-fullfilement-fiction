@@ -100,3 +100,20 @@ This file maintains an append-only history of what this AI+human team has done.
 - **Next steps**:
   - Test chat endpoint with curl.
 - **Actor**: Claude Code
+
+---
+
+#### `[2026-03-09 14:00] Prompt & Skills 加载实现方案设计`
+- **Context**: 用户要求分析当前 agent、llm 模块实现，设计后续 prompt 和 skills 加载方案。
+- **Changes**:
+  - `docs/prompt-skills-design.md`: 创建完整设计方案文档。
+  - `docs/files.md`: 更新文件结构树，补充 llm/tools 和 docs 目录详情。
+- **Decisions**:
+  - Prompt 系统作为 Agent 基础行为定义，支持模板变量和运行时热更新。
+  - Skills 系统作为任务级动态能力增强，支持触发器匹配和优先级排序。
+  - 两系统独立但协同工作：Prompt 提供基础，Skills 按需追加增强。
+- **Next steps**:
+  - Phase 1: 实现 Prompt 系统（prompt.go, manager.go, loader.go, render.go）。
+  - Phase 2: 实现 Skills 系统（skills.go, hub.go, matcher.go, loader.go）。
+  - Phase 3: 增强功能（热更新、API 接口、遥测指标）。
+- **Actor**: Claude Code, 全能的ai统治者
