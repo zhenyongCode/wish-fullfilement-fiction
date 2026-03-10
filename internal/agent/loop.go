@@ -93,8 +93,9 @@ func formatToolUseMessages(calls []llm.ToolCall) string {
 func (l *Loop) dispatchTools(ctx context.Context, calls []llm.ToolCall) ([]string, error) {
 	results := make([]string, 0, len(calls))
 	for _, call := range calls {
-
+		g.Log().Debugf(ctx, "agent loop round %d tool calls: %s", call.ID, call.Name)
 		result, err := l.executeTool(ctx, call)
+		g.Log().Debugf(ctx, "agent loop round %d tool result: %s", call.ID, result)
 		if err != nil {
 			return nil, err
 		}

@@ -121,6 +121,10 @@ func (h *Hub) RegisterByName(name string) error {
 		tool = newBashTool(h.runner)
 	case consts.ToolNameReadFile:
 		tool = newReadFileTool(h.workspace)
+	case consts.ToolNameWriteFile:
+		tool = newWriteFileTool(h.workspace)
+	case consts.ToolNameEditFile:
+		tool = newEditFileTool(h.workspace)
 	default:
 		return fmt.Errorf("%w: %s", ErrToolNotFound, name)
 	}

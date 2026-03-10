@@ -16,8 +16,9 @@ type Agent struct {
 	loop      *Loop
 	skillHub  *skills.Hub // 技能中心，管理可用的技能实例
 	workspace string
-	messages  []llm.ChatMessage // Agent 当前的对话消息列表，可以包含系统提示、用户输入、助手回复等
-	sessionId string
+
+	sessionMessages map[string][]llm.ChatMessage // 对应会话的消息列表，key 是 sessionId
+	sessionId       string
 }
 
 func NewAgent(name string, llmClient llm.Client) *Agent {
@@ -64,17 +65,28 @@ func (a *Agent) ResetSession(sessionId string) {
 		sessionId = a.generateSessionId()
 	}
 	a.sessionId = sessionId
+	a.sessionMessages = make(map[string][]llm.ChatMessage)
+	a.sessionMessages[sessionId] = []llm.ChatMessage{}
 }
 func (a *Agent) generateSessionId() string {
 	return guid.S([]byte(a.name))
 }
 
+func (a *Agent) GetSessionMessages() []llm.ChatMessage {
+	return a.sessionMessages[a.sessionId]
+}
+func (a *Agent) SetSessionMessages(messages []llm.ChatMessage) {
+	a.sessionMessages[a.sessionId] = messages
+}
+func (a *Agent) AppendSessionMessages(messages []llm.ChatMessage) {
+	a.sessionMessages[a.sessionId] = append(a.sessionMessages[a.sessionId], messages...)
+}
+
 func (a *Agent) Run(ctx context.Context, task string) (string, error) {
-	// TODO: 根据 task 构建初始的 messages，可以包含系统提示、用户输入等
 	if a.sessionId == "" {
 		a.ResetSession("")
 	}
-	if len(a.messages) == 0 {
+	if len(a.GetSessionMessages()) == 0 {
 		p := prompt.NewPrompt()
 		systemPrompt := p.GetSystemPrompt(a.name)
 		if a.workspace != "" {
@@ -82,14 +94,15 @@ func (a *Agent) Run(ctx context.Context, task string) (string, error) {
 			systemPrompt += "The following skills extend your capabilities. To use a skill, read its SKILL.md file using the read_file tool.\n\n" + sm
 			g.Log().Debugf(ctx, systemPrompt)
 		}
-		a.messages = []llm.ChatMessage{
+		a.SetSessionMessages([]llm.ChatMessage{
 			{Role: "system", Content: systemPrompt},
-		}
+		})
 	}
+	a.AppendSessionMessages([]llm.ChatMessage{
+		{Role: "user", Content: task},
+	})
 
-	a.messages = append(a.messages, llm.ChatMessage{Role: "user", Content: task})
-
-	result, updatedMessages, err := a.loop.Execute(ctx, a.messages)
-	a.messages = updatedMessages
+	result, updatedMessages, err := a.loop.Execute(ctx, a.GetSessionMessages())
+	a.sessionMessages[a.sessionId] = updatedMessages
 	return result, err
 }
