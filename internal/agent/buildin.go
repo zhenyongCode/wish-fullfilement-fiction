@@ -36,12 +36,12 @@ func ListAgents() []*Agent {
 
 func initBuiltinAgents() {
 	for _, agent := range consts.BuildInAgents {
-		initTranslationAgent(agent)
+		initBuildInAgent(agent)
 	}
 }
-func initTranslationAgent(name string) {
+func initBuildInAgent(name string) {
 	agent := GetAgent(name)
-
+	agent.workspace = consts.AgentWorkspace[name]
 	agent.ResetSession("")
 
 }

@@ -70,9 +70,17 @@ const (
 const (
 	BuildInAgentTranslation = "translation"
 	BuildInAgentCodding     = "coding"
+	BuildInAgentWriter      = "writer"
 )
+
+var AgentWorkspace = map[string]string{
+	BuildInAgentTranslation: "~/.agents/translation",
+	BuildInAgentCodding:     "~/.agents/coding",
+	BuildInAgentWriter:      "~/.agents",
+}
 
 var BuildInAgents = []string{
 	BuildInAgentTranslation,
 	BuildInAgentCodding,
+	BuildInAgentWriter,
 }

@@ -29,7 +29,6 @@ type Loop struct {
 	llm       llm.Client
 	maxRounds int
 	toolHub   *tools.Hub // 工具中心，管理可用的工具实例
-	//skillHub  *SkillHub
 }
 
 func NewLoop(llm llm.Client, maxRounds int) *Loop {
