@@ -39,7 +39,7 @@ func NewLoop(llm llm.Client, maxRounds int) *Loop {
 	}
 }
 
-func (l *Loop) Execute(ctx context.Context, messages []llm.ChatMessage) (string, error) {
+func (l *Loop) Execute(ctx context.Context, messages []llm.ChatMessage) (string, []llm.ChatMessage, error) {
 	loopStart := time.Now()
 	for round := 1; round <= l.maxRounds; round++ {
 		roundStart := time.Now()
@@ -48,7 +48,7 @@ func (l *Loop) Execute(ctx context.Context, messages []llm.ChatMessage) (string,
 			Tools:    l.toolHub.GetTools(),
 		})
 		if err != nil {
-			return "", err
+			return "", messages, err
 		}
 		assistantContent := strings.TrimSpace(resp.Content)
 		if assistantContent == "" && len(resp.ToolCalls) > 0 {
@@ -61,19 +61,20 @@ func (l *Loop) Execute(ctx context.Context, messages []llm.ChatMessage) (string,
 		if resp.StopReason != consts.StopReasonToolUse {
 			g.Log().Debugf(ctx, "agent loop round %d stop reason: %s, content: %s", round, resp.StopReason, assistantContent)
 			g.Log().Infof(ctx, "agent loop stopped at round %d, total time: %s , round time: %s", round, time.Since(loopStart), time.Since(roundStart))
-			return resp.Content, nil
+			return resp.Content, messages, nil
 		}
 		// 处理工具调用
 		toolResults, err := l.dispatchTools(ctx, resp.ToolCalls)
 		if err != nil {
-			return "", err
+			return "", messages, err
 		}
 		resultPayload := strings.Join(toolResults, "\n")
+		g.Log().Debugf(ctx, "agent loop round %d tool results: %s", round, resultPayload)
 		// 将工具结果作为用户消息添加到对话中，继续下一轮交互
 		messages = append(messages, llm.ChatMessage{Role: "user", Content: resultPayload})
 	}
 
-	return "", nil
+	return "I've completed processing but have no response to give.", messages, nil
 }
 func formatToolUseMessages(calls []llm.ToolCall) string {
 	if len(calls) == 0 {

@@ -43,8 +43,12 @@ func NewHub(defaultTimeout time.Duration) *Hub {
 		runner:         defaultCommandRunner,
 	}
 	// 注册默认工具
-	hub.RegisterByName(consts.ToolNameReadFile)
-	hub.RegisterByName(consts.ToolNameBash)
+	buildInTool := []string{consts.ToolNameBash, consts.ToolNameReadFile, consts.ToolNameWriteFile, consts.ToolNameEditFile}
+	for _, tool := range buildInTool {
+		if err := hub.RegisterByName(tool); err != nil {
+			g.Log().Errorf(context.Background(), "failed to register built-in tool %s: %v", tool, err)
+		}
+	}
 	return hub
 }
 func (h *Hub) GetTools() []llm.ToolSpec {

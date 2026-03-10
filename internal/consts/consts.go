@@ -52,6 +52,8 @@ const (
 	StopReasonToolUse = "tool_use"
 	ToolNameBash      = "bash"
 	ToolNameReadFile  = "read_file"
+	ToolNameWriteFile = "write_file"
+	ToolNameEditFile  = "edit_file"
 )
 
 const (

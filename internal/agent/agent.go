@@ -2,6 +2,7 @@ package agent
 
 import (
 	"context"
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/guid"
 	"wish-fullfilement-fiction/internal/consts"
 	"wish-fullfilement-fiction/internal/llm"
@@ -79,6 +80,7 @@ func (a *Agent) Run(ctx context.Context, task string) (string, error) {
 		if a.workspace != "" {
 			sm := a.skillHub.BuildSummary(a.workspace)
 			systemPrompt += "The following skills extend your capabilities. To use a skill, read its SKILL.md file using the read_file tool.\n\n" + sm
+			g.Log().Debugf(ctx, systemPrompt)
 		}
 		a.messages = []llm.ChatMessage{
 			{Role: "system", Content: systemPrompt},
@@ -87,5 +89,7 @@ func (a *Agent) Run(ctx context.Context, task string) (string, error) {
 
 	a.messages = append(a.messages, llm.ChatMessage{Role: "user", Content: task})
 
-	return a.loop.Execute(ctx, a.messages)
+	result, updatedMessages, err := a.loop.Execute(ctx, a.messages)
+	a.messages = updatedMessages
+	return result, err
 }
