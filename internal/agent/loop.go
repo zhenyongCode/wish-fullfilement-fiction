@@ -71,7 +71,7 @@ func (l *Loop) Execute(ctx context.Context, messages []llm.ChatMessage) (string,
 		resultPayload := strings.Join(toolResults, "\n")
 		g.Log().Debugf(ctx, "agent loop round %d tool results: %s", round, resultPayload)
 		// 将工具结果作为用户消息添加到对话中，继续下一轮交互
-		messages = append(messages, llm.ChatMessage{Role: "user", Content: resultPayload})
+		messages = append(messages, llm.ChatMessage{Role: "assistant", Content: resultPayload})
 	}
 
 	return "I've completed processing but have no response to give.", messages, nil

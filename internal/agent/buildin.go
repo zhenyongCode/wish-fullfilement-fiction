@@ -3,7 +3,7 @@ package agent
 import (
 	"context"
 	"wish-fullfilement-fiction/internal/consts"
-	"wish-fullfilement-fiction/internal/llm/bifrost"
+	"wish-fullfilement-fiction/internal/llm/restclient"
 )
 
 // 这是一个内置的 Agent 实现，提供了一个简单的示例，展示如何创建和使用 Agent。
@@ -19,7 +19,8 @@ func GetAgent(name string) *Agent {
 	if agent, exists := agents[name]; exists {
 		return agent
 	}
-	llmClient, err := bifrost.New(context.Background())
+	//llmClient, err := bifrost.New(context.Background())
+	llmClient, err := restclient.NewFromContext(context.Background())
 	if err != nil {
 		return nil
 	}

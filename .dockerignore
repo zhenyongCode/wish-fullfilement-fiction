@@ -1,0 +1,37 @@
+# Git
+.git
+.gitignore
+
+# Binaries
+bin/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+Dockerfile
+docker-compose*.yml
+
+# Docs
+docs/
+README.MD
+CLAUDE.md
+
+# Test
+*_test.go
+
+# Temp
+temp/
+tmp/
+
